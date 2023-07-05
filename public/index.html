@@ -81,7 +81,7 @@
             // Function to convert the code
             function convertCode() {
                 // Make a POST request to the server
-                fetch("/convert", {
+                fetch("https://code-convetrer.onrender.com/convert", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -108,7 +108,7 @@
                 }
 
                 // Make a POST request to the server for debugging
-                fetch('/debug', {
+                fetch('https://code-convetrer.onrender.com/debug', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -140,7 +140,7 @@
             // Function to perform quality check
             function performQualityCheck() {
                 // Make a POST request to the server for quality check
-                fetch("/qualitycheck", {
+                fetch("https://code-convetrer.onrender.com/qualitycheck", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
