@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Code Converter</title>
+    <!-- Add CSS stylesheets for the code editor -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/editor/editor.main.min.css" />
+    <!-- Add your custom CSS stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Code Converter</h1>
+
+        <div class="editor-container">
+            <h2>Input Code</h2>
+            <div id="editor"></div>
+        </div>
+
+        <div class="controls-container">
+            <label for="languageSelect">Select Language:</label>
+            <select id="languageSelect">
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="python">Python</option>
+                <!-- Add more language options as needed -->
+            </select>
+            <button id="convertBtn">Convert</button>
+            <button id="debugBtn">Debug</button>
+            <button id="qualityCheckBtn">Quality Check</button>
+        </div>
+
+        <div class="output-container">
+            <h2>Converted Code</h2>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <!-- Add JavaScript dependencies for the code editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+    <script>
+        // Configure the Monaco Editor loading
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.26.1/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            // Initialize the code editor
+            let code = '';
+            let language = 'javascript';
+
+
+            // Initialize the code editor
+            const editor = monaco.editor.create(document.getElementById("editor"), {
+                value: code, // Set the initial value to an empty string or any default code
+                language: language,
+                theme: "vs-dark",
+            });
+
+            // Event listener for code changes
+            editor.onDidChangeModelContent((event) => {
+                code = editor.getValue(); // Update the code variable on editor change
+            });
+
+            // Event listener for language changes
+            const languageSelect = document.getElementById("languageSelect");
+            languageSelect.addEventListener("change", () => {
+                language = languageSelect.value; // Update the language variable on select change
+            });
+
+            // Get references to the UI elements
+            const convertBtn = document.getElementById("convertBtn");
+            const debugBtn = document.getElementById("debugBtn");
+            const qualityCheckBtn = document.getElementById("qualityCheckBtn");
+            const output = document.getElementById("output");
+
+            // Add event listeners for the buttons
+            convertBtn.addEventListener("click", convertCode);
+            debugBtn.addEventListener("click", debugCode);
+            qualityCheckBtn.addEventListener("click", performQualityCheck);
+
+            // Function to convert the code
+            function convertCode() {
+                // Make a POST request to the server
+                fetch("/convert", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ language, code }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        output.textContent = data.message;
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        output.textContent = "An error occurred during code conversion.";
+                    });
+            }
+
+            // Function to debug the code
+            function debugCode() {
+                const codeToDebug = editor.getValue(); // Get the code from the editor
+
+                if (!codeToDebug) {
+                    output.textContent = 'No code was provided.'; // Display an error message if no code is provided
+                    return;
+                }
+
+                // Make a POST request to the server for debugging
+                fetch('/debug', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code: codeToDebug }) // Pass the code to the server
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        output.textContent = data.message;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        output.textContent = 'An error occurred during debugging.';
+                    });
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            // Function to perform quality check
+            function performQualityCheck() {
+                // Make a POST request to the server for quality check
+                fetch("/qualitycheck", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ code }),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data);
+                        output.textContent = data.message;
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        output.textContent = "An error occurred during quality check.";
+                    });
+            }
+
+
+        });
+    </script>
+    <script src="app.js"></script>
+</body>
+
+</html>
